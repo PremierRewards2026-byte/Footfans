@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FootFanz - Premium Football Predictions</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    :root {
+      --primary: #1D8CFF;
+      --primary-dark: #006adc;
+      --secondary: #4DA3FF;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --success: #10b981;
+      --border: #e2e8f0;
+      --nav-bg: rgba(255, 255, 255, 0.9);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.5; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+    
+    /* Header */
+    header {
+      position: sticky; top: 0; background: var(--nav-bg);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 1000;
+      padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center;
+      transition: all 0.3s ease;
+    }
+    .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; letter-spacing: -0.5px; }
+    .logo span { color: var(--primary); }
+    
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { font-weight: 600; font-size: 0.95rem; color: var(--text-muted); transition: color 0.2s; position: relative; }
+    .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+    .nav-links a.active::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background: var(--primary); border-radius: 2px;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer;
+      border: none; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(29, 140, 255, 0.25); }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(29, 140, 255, 0.35); }
+    .btn-white { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: white; }
+    .btn-white:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
+    
+    /* Views */
+    .view { display: none; animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Hero */
+    .hero {
+      background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1518605368461-1ee7e5302a40?auto=format&fit=crop&q=80') center/cover;
+      color: white; padding: 4.5rem 5% 7rem 5%; text-align: center; position: relative;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.4rem 1rem; border-radius: 50px;
+      font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; backdrop-filter: blur(8px); letter-spacing: 0.5px;
+    }
+    .hero-badge i { color: var(--primary); width: 16px; height: 16px; }
+    .hero h1 { font-size: 3.5rem; font-weight: 800; max-width: 800px; margin: 0 auto 1.25rem auto; line-height: 1.15; letter-spacing: -1px; }
+    .hero h1 span { color: var(--primary); text-shadow: 0 0 30px rgba(29, 140, 255, 0.4); }
+    .hero p { font-size: 1.125rem; color: #cbd5e1; max-width: 600px; margin: 0 auto 2rem auto; font-weight: 400; }
+    .hero-actions { display: flex; justify-content: center; gap: 1rem; }
+    
+    /* Mobile Menu */
+    .mobile-menu-btn { display: none; background: none; border: none; color: var(--text); cursor: pointer; }
+    
+    .mobile-menu-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);
+      z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+    }
+    .mobile-menu-overlay.active { opacity: 1; pointer-events: auto; }
+    .mobile-menu-content {
+      position: absolute; top: 0; right: -300px; width: 280px; height: 100%; background: var(--card);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.1); padding: 5rem 2rem 2rem 2rem; display: flex; flex-direction: column; gap: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-menu-overlay.active .mobile-menu-content { right: 0; }
+    .close-menu { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text); cursor: pointer; }
+    .mobile-menu-content a { font-size: 1.125rem; font-weight: 600; color: var(--text); transition: color 0.2s; display: flex; align-items: center; gap: 0.75rem; }
+    .mobile-menu-content a:hover { color: var(--primary); }
+    .mobile-menu-content .vip-link { color: var(--primary); margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    
+    /* Dashboard / Cards */
+    .grid-container { max-width: 1100px; margin: 0 auto 4rem auto; padding: 0 5%; }
+    
+    .feature-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; max-width: 1100px; margin: -3rem auto 3rem auto; padding: 0 5%; position: relative; z-index: 10; }
+    .feature-card { background: var(--card); border-radius: 16px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border); transition: transform 0.3s; cursor: default; }
+    .feature-card:hover { transform: translateY(-3px); }
+    .feature-icon { background: rgba(29, 140, 255, 0.1); color: var(--primary); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .feature-text h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.15rem; color: var(--text); }
+    .feature-text p { color: var(--text-muted); font-size: 0.8rem; line-height: 1.4; }
+    
+    .section-header { text-align: center; margin-bottom: 2.5rem; }
+    .section-header h2 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .section-header p { color: var(--text-muted); font-size: 1rem; }
+    
+    .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    
+    .main-card { 
+      background: var(--card); border-radius: 20px; padding: 2rem; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid var(--border); 
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .main-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); border-color: var(--primary); }
+    .main-card::after { content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: linear-gradient(135deg, transparent 50%, rgba(29, 140, 255, 0.05) 50%); border-radius: 0 20px 0 120px; pointer-events: none; }
+    
+    .main-card-header { display: flex; gap: 1.25rem; margin-bottom: 1.5rem; align-items: flex-start; }
+    .main-card-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #1D8CFF, #4DA3FF); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 16px rgba(29, 140, 255, 0.25); flex-shrink: 0; }
+    .main-card-icon.green { background: linear-gradient(135deg, #10b981, #34d399); box-shadow: 0 8px 16px rgba(16, 185, 129, 0.25); }
+    
+    .main-card-info { flex-grow: 1; }
+    .main-card-info h3 { font-size: 1.35rem; font-weight: 800; margin-bottom: 0.25rem; color: var(--text); }
+    .main-card-info p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem; line-height: 1.4; }
+    
+    .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; background: #ecfdf5; color: #059669; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #a7f3d0; }
+    .status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
+    
+    .main-card .btn { width: 100%; justify-content: center; margin-top: auto; }
+
+    /* Trust Bar */
+    .trust-bar { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .trust-item { display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+    .trust-icon { width: 36px; height: 36px; background: rgba(29, 140, 255, 0.1); color: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .trust-text { display: flex; flex-direction: column; }
+    .trust-text strong { font-size: 1rem; font-weight: 800; line-height: 1.1; }
+    .trust-text span { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Inner Page Hero */
+    .page-hero { background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80') center/cover; padding: 3rem 5%; color: white; margin-bottom: 2rem; text-align: center; }
+    .page-hero-inner { max-width: 900px; margin: 0 auto; }
+    .breadcrumb { color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; display: flex; justify-content: center; gap: 0.5rem; }
+    .breadcrumb a:hover { color: white; }
+    .page-hero h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .page-hero p { color: #cbd5e1; font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    
+    /* Resources Grid */
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .resource-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: all 0.2s ease; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .resource-card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.06); border-color: var(--primary); }
+    .resource-icon { width: 44px; height: 44px; background: rgba(29, 140, 255, 0.1); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; transition: transform 0.2s; }
+    .resource-card:hover .resource-icon { transform: scale(1.05); background: var(--primary); color: white; }
+    .resource-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text); }
+    .resource-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.4; flex-grow: 1; }
+    .card-link { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(29, 140, 255, 0.1); color: var(--primary); font-weight: 600; font-size: 0.85rem; padding: 0.6rem 1rem; border-radius: 10px; transition: all 0.3s ease; margin-top: auto; align-self: flex-start; }
+    .resource-card:hover .card-link { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(29, 140, 255, 0.25); }
+    .card-link i { transition: transform 0.3s ease; }
+    .resource-card:hover .card-link i { transform: translateX(4px); }
+    
+    /* Locker Specific */
+    .locker-hero { background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&q=80') center/cover; padding: 4rem 5% 8rem 5%; text-align: center; color: white; }
+    .locker-hero h1 { font-size: 3rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -1px; }
+    .locker-card { 
+      background: var(--card); border-radius: 24px; padding: 2.5rem; color: var(--text); text-align: center; 
+      max-width: 750px; margin: -5rem auto 4rem auto; position: relative; z-index: 10; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid var(--border);
+    }
+    
+    .unlock-benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; background: var(--bg); padding: 1.25rem; border-radius: 16px; border: 1px solid var(--border); }
+    .benefit-item { text-align: center; }
+    .benefit-item i { color: var(--primary); margin-bottom: 0.5rem; }
+    .benefit-item h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .benefit-item p { font-size: 0.75rem; color: var(--text-muted); }
+    
+    .offer-box { background: #f8fafc; padding: 2rem; border-radius: 16px; border: 1px dashed #cbd5e1; margin-bottom: 1.5rem; }
+    .offer-loader { width: 40px; height: 40px; border: 3px solid rgba(29, 140, 255, 0.2); border-top-color: var(--primary); border-radius: 50%; margin: 0 auto 1rem auto; animation: spin 1s linear infinite; }
+    
+    .locker-trust { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; }
+    .locker-trust div { display: flex; align-items: center; gap: 0.35rem; }
+    
+    /* Footer */
+    footer { background: white; padding: 3rem 5% 2rem 5%; border-top: 1px solid var(--border); }
+    .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; }
+    .footer-brand .logo { font-size: 1.25rem; color: var(--text); margin-bottom: 0.5rem; }
+    .footer-brand p { color: var(--text-muted); font-size: 0.85rem; max-width: 300px; }
+    .footer-links { display: flex; gap: 2rem; }
+    .footer-links a { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--primary); }
+    .footer-bottom { max-width: 1100px; margin: 2rem auto 0 auto; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.8rem; }
+    
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Button and Modal Additions */
+    .glow-btn {
+      background: var(--primary); border: none; color: white;
+      box-shadow: 0 0 15px rgba(29, 140, 255, 0.4);
+      animation: pulse-glow 2s infinite;
+      transition: all 0.3s ease;
+    }
+    .glow-btn:hover { background: #1a7ae0; box-shadow: 0 0 20px rgba(29, 140, 255, 0.6); transform: translateY(-1px); }
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 15px rgba(29, 140, 255, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(29, 140, 255, 0.8); }
+      100% { box-shadow: 0 0 15px rgba(29, 140, 255, 0.4); }
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
+      z-index: 2147483647; opacity: 0; pointer-events: none; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content {
+      background: var(--card); border-radius: 24px; padding: 2.5rem; max-width: 500px; width: 100%; position: relative;
+      transform: translateY(20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    .close-modal { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+    .close-modal:hover { color: var(--text); }
+    .modal-icon { width: 56px; height: 56px; background: rgba(29, 140, 255, 0.1); color: var(--primary); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; }
+    .modal-icon i { width: 28px; height: 28px; }
+    .modal-content h3 { font-size: 1.5rem; font-weight: 800; color: var(--text); text-align: center; margin-bottom: 0.5rem; }
+    .modal-desc { color: var(--text-muted); text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .modal-steps-list { list-style: none; margin-bottom: 1.5rem; text-align: left; padding: 0; }
+    .modal-steps-list li { margin-bottom: 1rem; color: var(--text); font-size: 0.95rem; display: flex; flex-direction: column; }
+    .modal-steps-list li strong { color: var(--text); font-weight: 700; margin-bottom: 0.25rem; }
+    .modal-note { background: rgba(29, 140, 255, 0.1); border-left: 4px solid var(--primary); padding: 1rem; border-radius: 4px; font-size: 0.85rem; color: var(--text); text-align: left; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .feature-bar, .dashboard-grid, .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .unlock-benefits { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .nav-links, .header-actions { display: none; }
+      .mobile-menu-btn { display: block; }
+      .hero { padding: 3rem 5% 5rem 5%; }
+      .hero h1 { font-size: 2.5rem; }
+      .feature-bar, .dashboard-grid, .cards-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .feature-bar { margin-top: -2rem; }
+      .trust-bar { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.5rem; background: var(--card); border-radius: 16px; }
+      .locker-card { margin-top: -3rem; padding: 1.5rem; }
+      .unlock-benefits { grid-template-columns: 1fr; gap: 1.5rem; }
+      .footer-content { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header">
+    <div class="logo" onclick="navigateTo('view-home')">
+      <i data-lucide="aperture" style="color: var(--primary); width: 24px; height: 24px;"></i>
+      Foot<span>Fanz</span>
+    </div>
+    <nav class="nav-links">
+      <a onclick="navigateTo('view-home')" class="active">Home</a>
+      <a onclick="navigateTo('view-resources')">Free Predictions</a>
+      <a onclick="navigateTo('view-leagues')">Top Leagues</a>
+      <a onclick="navigateTo('view-locker')">VIP Premium</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-primary" onclick="navigateTo('view-locker')">
+        <i data-lucide="lock" style="width: 16px; height: 16px;"></i> VIP Access
+      </button>
+    </div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+      <i data-lucide="menu" style="width: 28px; height: 28px;"></i>
+    </button>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu-overlay" id="mobile-menu">
+    <div class="mobile-menu-content">
+      <button class="close-menu" onclick="toggleMobileMenu()"><i data-lucide="x" style="width: 28px; height: 28px;"></i></button>
+      <a onclick="navigateTo('view-home'); toggleMobileMenu()"><i data-lucide="home" style="width: 20px;"></i> Home</a>
+      <a onclick="navigateTo('view-resources'); toggleMobileMenu()"><i data-lucide="activity" style="width: 20px;"></i> Free Predictions</a>
+      <a onclick="navigateTo('view-leagues'); toggleMobileMenu()"><i data-lucide="trophy" style="width: 20px;"></i> Top Leagues</a>
+      <a onclick="navigateTo('view-locker'); toggleMobileMenu()" class="vip-link"><i data-lucide="lock" style="width: 20px;"></i> VIP Premium</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- HOME VIEW -->
+    <div id="view-home" class="view active">
+      <section class="hero">
+        <div class="hero-badge"><i data-lucide="check-circle"></i> VERIFIED FOOTBALL PREDICTIONS</div>
+        <h1>FootFanz: Ultimate <span>Football Picks</span></h1>
+        <p>Premium match predictions, expert betting insights, and winning tips. Smart analysis you can trust without the endless scrolling.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="navigateTo('view-resources')">View Predictions <i data-lucide="arrow-right" style="width: 18px;"></i></button>
+          <button class="btn btn-white" onclick="navigateTo('view-leagues')">Explore Leagues</button>
+        </div>
+      </section>
+
+      <section class="feature-bar">
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="calendar" style="width: 20px;"></i></div>
+          <div class="feature-text"><h3>Daily Updates</h3><p>Fresh picks every 24h.</p></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="line-chart" style="width: 20px;"></i></div>
+          <div class="feature-text"><h3>High Accuracy</h3><p>Data-driven insights.</p></div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="trophy" style="width: 20px;"></i></div>
+          <div class="feature-text"><h3>Top Leagues</h3><p>Global coverage.</p></div>
+        </div>
+      </section>
+
+      <section class="grid-container">
+        <div class="section-header">
+          <h2>Choose Your Path</h2>
+          <p>Access the best football predictions and insights efficiently.</p>
+        </div>
+        <div class="dashboard-grid">
+          <!-- Card 1 -->
+          <div class="main-card" onclick="navigateTo('view-resources')">
+            <div class="main-card-header">
+              <div class="main-card-icon"><i data-lucide="activity"></i></div>
+              <div class="main-card-info">
+                <h3>Free Predictions</h3>
+                <p>Latest match predictions, betting tips and expert football analysis.</p>
+                <div class="status-pill">ONLINE</div>
+              </div>
+            </div>
+            <button class="btn btn-primary">Open Predictions <i data-lucide="arrow-right" style="width: 16px;"></i></button>
+          </div>
+          <!-- Card 2 -->
+          <div class="main-card" onclick="navigateTo('view-leagues')">
+            <div class="main-card-header">
+              <div class="main-card-icon green"><i data-lucide="trophy"></i></div>
+              <div class="main-card-info">
+                <h3>Top Leagues</h3>
+                <p>Coverage from the world's most popular football competitions.</p>
+                <div class="status-pill">ACTIVE</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="background: #10b981;">Explore Leagues <i data-lucide="arrow-right" style="width: 16px;"></i></button>
+          </div>
+        </div>
+        
+        <!-- Trust Bar -->
+        <div class="trust-bar">
+          <div class="trust-item">
+            <div class="trust-icon"><i data-lucide="users"></i></div>
+            <div class="trust-text"><strong>50K+</strong><span>Active Users</span></div>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon"><i data-lucide="shield-check"></i></div>
+            <div class="trust-text"><strong>100%</strong><span>Verified Picks</span></div>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon"><i data-lucide="clock"></i></div>
+            <div class="trust-text"><strong>24/7</strong><span>Updated Daily</span></div>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon"><i data-lucide="star"></i></div>
+            <div class="trust-text"><strong>4.9/5</strong><span>User Rating</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- RESOURCES VIEW -->
+    <div id="view-resources" class="view">
+      <div class="page-hero">
+        <div class="page-hero-inner">
+          <div class="breadcrumb"><a onclick="navigateTo('view-home')">Home</a> &gt; <span>Free Predictions</span></div>
+          <h1>Free Football Predictions</h1>
+          <p>Expert analysis and betting tips for top leagues worldwide.</p>
+        </div>
+      </div>
+      <div class="grid-container cards-grid">
+        <div class="resource-card" onclick="navigateTo('view-locker')">
+          <div class="resource-icon"><i data-lucide="calendar"></i></div>
+          <h3>Daily Match Picks</h3>
+          <p>Expert predictions for today's top football matches.</p>
+          <div class="card-link">View Picks <i data-lucide="arrow-right" style="width: 16px;"></i></div>
+        </div>
+        <div class="resource-card" onclick="navigateTo('view-locker')">
+          <div class="resource-icon"><i data-lucide="target"></i></div>
+          <h3>Correct Score</h3>
+          <p>Accurate score predictions and deep match analysis.</p>
+          <div class="card-link">View Picks <i data-lucide="arrow-right" style="width: 16px;"></i></div>
+        </div>
+        <div class="resource-card" onclick="navigateTo('view-locker')">
+          <div class="resource-icon"><i data-lucide="layers"></i></div>
+          <h3>Accumulator Tips</h3>
+          <p>High value combo tips carefully selected by experts.</p>
+          <div class="card-link">View Picks <i data-lucide="arrow-right" style="width: 16px;"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEAGUES VIEW -->
+    <div id="view-leagues" class="view">
+      <div class="page-hero">
+        <div class="page-hero-inner">
+          <div class="breadcrumb"><a onclick="navigateTo('view-home')">Home</a> &gt; <span>Top Leagues</span></div>
+          <h1>Top Leagues</h1>
+          <p>Verified coverage from major global football competitions.</p>
+        </div>
+      </div>
+      <div class="grid-container cards-grid">
+        <div class="resource-card" onclick="navigateTo('view-locker')">
+          <div class="resource-icon"><i data-lucide="shield"></i></div>
+          <h3>Premier League</h3>
+          <p>The top tier of English football. Find match insights and team stats.</p>
+          <div class="card-link">Explore League <i data-lucide="arrow-right" style="width: 16px;"></i></div>
+        </div>
+        <div class="resource-card" onclick="navigateTo('view-locker')">
+          <div class="resource-icon"><i data-lucide="star"></i></div>
+          <h3>Champions League</h3>
+          <p>Europe's elite club competition. In-depth reports for every matchday.</p>
+          <div class="card-link">Explore League <i data-lucide="arrow-right" style="width: 16px;"></i></div>
+        </div>
+        <div class="resource-card" onclick="navigateTo('view-locker')">
+          <div class="resource-icon"><i data-lucide="sun"></i></div>
+          <h3>La Liga</h3>
+          <p>Top professional football division of the Spanish football league system.</p>
+          <div class="card-link">Explore League <i data-lucide="arrow-right" style="width: 16px;"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT LOCKER VIEW -->
+    <div id="view-locker" class="view">
+      <div class="locker-hero">
+        <h1 style="font-size: 2.75rem; font-weight: 800; margin-bottom: 0.5rem;">Unlock <span style="color: var(--primary);">VIP</span> Predictions</h1>
+        <p style="font-size: 1rem; max-width: 600px; margin: 0 auto; color: #cbd5e1;">Complete one quick step below to unlock our exclusive football predictions, high-accuracy betting tips, and expert insights.</p>
+      </div>
+      
+      <div class="locker-card">
+        <div class="offer-box" id="analysis-loader">
+          <div class="offer-loader"></div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text);">Loading football analysis...</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Please wait while we prepare your premium insights.</p>
+        </div>
+        
+        <div class="locker-trust" style="margin-top: 2rem;">
+          <div><i data-lucide="lock" style="width: 14px; height: 14px;"></i> Secure SSL</div>
+          <div><i data-lucide="shield" style="width: 14px; height: 14px;"></i> 100% Privacy</div>
+          <div><i data-lucide="alert-circle" style="width: 14px; height: 14px;"></i> Gamble Responsibly</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Custom Final Locker Details Overlay -->
+  <div id="custom-locker-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999900; background-color: #060d1f; flex-direction: column; overflow: hidden;">
+    
+    <!-- Top Bar -->
+    <div style="background: #0a1122; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 1.25rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+      <div style="display: flex; align-items: center; gap: 0.5rem; color: white; font-weight: 600; font-size: 1.1rem;">
+        <i data-lucide="lock" style="width: 20px; height: 20px; color: #3b82f6;"></i>
+        Premium Locker
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <button class="btn glow-btn" onclick="toggleHowToModal()" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; height: auto;">
+          <i data-lucide="help-circle" style="width: 16px; height: 16px;"></i> Need help?
+        </button>
+        <button onclick="window.location.reload()" style="background: none; border: none; color: #94a3b8; display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;">
+          Return Home <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content: Full Screen Iframe -->
+    <div id="cpa-iframe-container" style="flex: 1; width: 100%; position: relative;">
+      <!-- Iframe will be injected here to take full height -->
+    </div>
+  </div>
+
+  <!-- How To Complete Modal -->
+  <div class="modal-overlay" id="how-to-modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="toggleHowToModal()"><i data-lucide="x" style="width: 24px; height: 24px;"></i></button>
+      <div class="modal-icon"><i data-lucide="info"></i></div>
+      <h3>How To Unlock</h3>
+      <p class="modal-desc">Follow these simple steps to get immediate access to our VIP predictions:</p>
+      
+      <ul class="modal-steps-list">
+        <li><strong>1. Select an Offer</strong> Click on one of the available partner offers below the loading box.</li>
+        <li><strong>2. Follow Instructions</strong> Complete the specific requirement for that offer (e.g., download an app, complete a quick survey, or submit your details).</li>
+        <li><strong>3. Wait for Verification</strong> Once completed, our system will automatically verify it within a few minutes.</li>
+        <li><strong>4. Get Access</strong> The locker will disappear, and you will be redirected to the premium picks automatically!</li>
+      </ul>
+      
+      <div class="modal-note">
+        <strong>Important:</strong> Please ensure you enter valid information or complete the task fully, otherwise the system will not unlock the content.
+      </div>
+      
+      <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1.5rem;" onclick="toggleHowToModal()">Got it, let's go!</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="logo"><i data-lucide="aperture" style="color: var(--primary); width: 20px;"></i>Foot<span>Fanz</span></div>
+        <p>The trusted destination for football information, league coverage, and premium betting resources.</p>
+      </div>
+      <div class="footer-links">
+        <a onclick="navigateTo('view-home')">Home</a>
+        <a onclick="navigateTo('view-resources')">Free Predictions</a>
+        <a onclick="navigateTo('view-leagues')">Top Leagues</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>&copy; 2026 FootFanz. All rights reserved.</div>
+      <div style="display: flex; gap: 1.5rem;"><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('active');
+    }
+
+    function toggleHowToModal() {
+      const modal = document.getElementById('how-to-modal');
+      modal.classList.toggle('active');
+    }
+    
+    function navigateTo(viewId) {
+      const views = document.querySelectorAll('.view');
+      views.forEach(v => {
+        v.classList.remove('active');
+        // Reset animation by triggering reflow
+        void v.offsetWidth;
+      });
+      
+      const target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        a.classList.remove('active');
+        if (a.getAttribute('onclick') === `navigateTo('${viewId}')`) a.classList.add('active');
+      });
+
+      if (viewId === 'view-locker') {
+        const loader = document.getElementById('analysis-loader');
+        if (loader) {
+          loader.innerHTML = `
+            <div class="offer-loader"></div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text);">Loading football analysis...</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Please wait while we prepare your premium insights.</p>
+          `;
+          
+          setTimeout(() => {
+            loader.innerHTML = `
+              <div style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.1); color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                <i data-lucide="check-circle" style="width: 24px; height: 24px;"></i>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text);">Analysis Complete</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Unlocking premium content...</p>
+            `;
+            lucide.createIcons();
+            
+            // Inject iframe locker inline to fill the remaining screen space
+            const iframeContainer = document.getElementById('cpa-iframe-container');
+            if (iframeContainer) {
+              iframeContainer.innerHTML = '<iframe src="https://appsave.space/cl/i/xp2jjg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" scrolling="yes"></iframe>';
+            }
+            
+            // Show our custom UI overlay that now contains the iframe inline
+            document.getElementById('custom-locker-overlay').style.display = 'flex';
+          }, 2000);
+        }
+      }
+    }
+    
+    // Header shadow on scroll
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('main-header');
+      if (window.scrollY > 10) {
+        header.style.boxShadow = '0 4px 20px rgba(0,0,0,0.05)';
+      } else {
+        header.style.boxShadow = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "FootFanz",
+  "description": "Premium football insights website and resource hub.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
